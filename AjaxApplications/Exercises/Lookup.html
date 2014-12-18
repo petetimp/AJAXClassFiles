@@ -1,0 +1,68 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Lookup Form</title>
+<link href="Lookup.css" type="text/css" rel="stylesheet">
+<script type="text/javascript" src="../../lib.js"></script>
+<script type="text/javascript">
+function lookUp(form) {
+		var year = form.Year.value;
+		var xmlhttp = new XMLHttpRequest();
+		if (isNaN(year) || year.length != 4) {
+			alert("Please enter a valid year.");
+			return false;
+		}
+		if (year < 1789 || year > 1845) {
+			alert("Please enter a year between 1789 and 1845.");
+			return false;
+		}
+
+		/*
+			Use Ajax to make a call to Lookup.php and pass in the year as "year" using the get method.  The callback function should be LookupResults.
+		*/
+		
+		xmlhttp.open("GET","Lookup.php?year=" + year,true);
+		
+		xmlhttp.onreadystatechange = function() {
+			if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+				LookupResults(xmlhttp);	
+			}
+		}
+		xmlhttp.send(null);
+		
+		/*
+			Write the LookupResults() callback function.  It should write out the code returned from the server to the "LookupResults" div.
+		*/
+		
+		function LookupResults(xmlhttp){
+			var output=document.getElementById("LookupResults");
+				output.innerHTML=xmlhttp.responseText;
+				output.style.color="green";
+		}	
+	}
+	
+	observeEvent(window,"load",function() {
+		var form = document.getElementById("LookupForm");
+		observeEvent(form,"submit",function() {
+			lookUp(form);
+		});
+	});
+</script>
+</head>
+<body>
+
+<form id="LookupForm" onsubmit="return false;">
+	<h1>Lookup Form</h1>
+	<p>Enter a year between 1789 and 1845 to find out who was president that year.</p>
+	<div class="FormRow">
+		<label for="Year">Year:</label>
+		<input type="text" size="5" id="Year" name="Year">
+		<input type="submit" value="Lookup">
+	</div>
+	<hr>
+	<div class="FormRow" id="LookupResults"></div>
+</form>
+
+</body>
+</html>

@@ -1,0 +1,48 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Arrays</title>
+<!--Arrays are very powerful in JavaScript.
+
+The Array object can be instantiated using a constructor
+call or a literal. The array indices must be positive 
+integers, but the values stored in an array can be of 
+any type or reference to any object.
+
+We can create new arrays using the new Array constructor
+or a literal (using square brackets).-->
+<script type="text/javascript">
+	//constructor call
+	var cities = new Array(); //cities.length will be 0
+	cities[0] = "Albuquerque"; //cities.length will be 1
+	cities[9] = "Tampa"; //cities.length will be 10
+	
+	 //literal syntax
+	var teams = [ "Cubs","Yankees","Mariners" ];
+	alert(teams.length); // 3
+
+	var bands = [];
+	alert(bands.length); // 0
+	bands["rock"] = ["Beatles","Rolling Stones","Pink Floyd"];
+	bands["punk"] = ["Sex Pistols","Ramones","Dead Kennedys"];
+	alert(bands.length); // 0
+	bands["1992"] = ["Nirvana","Pearl Jam","Soundgarden","Metallica"];
+	alert(bands.length); // 1993
+/*Things to note:
+
+The array index starts at 0 in JavaScript
+Arrays can be initialized with values or without values 
+using the literal syntax.
+
+The array length is always one greater than the highest 
+numerical index. You should ensure your indices are 
+continuos positive numbers if you are going to loop over
+the values in the array using the for (var i=0; i
+<myarray.length; ++i) {} approach.*/
+</script>
+</head>
+<body>
+<p>Nothing to show here.</p>
+</body>
+</html>

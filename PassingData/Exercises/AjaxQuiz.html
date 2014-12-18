@@ -1,0 +1,97 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="UTF-8">
+<link href="AjaxQuiz.css" type="text/css" rel="stylesheet">
+<script src="../../lib.js" type="text/javascript"></script>
+<script src="../../json.js" type="text/javascript"></script>
+<script type="text/javascript">
+/*When the page loads, we call the init() function, which attaches the 
+checkAnswer() function to click events of all the input elements in the 
+form.*/
+	function init() {
+		var quiz=document.getElementById("quizForm");
+		var inputs = quiz.getElementsByTagName("input");
+		for (var i=0; i<inputs.length; i++)	{
+			observeEvent(inputs[i],"click",checkAnswer);
+		}
+	}
+	/*Write the respond() function so that it outputs the server response 
+	text to the appropriate result div.*/
+	function respond(xmlhttp,resultDiv) {
+		resultDiv.innerHTML=xmlhttp.responseText;
+	}
+	/*Write the checkAnswer() function. It should do the following:
+Create an object with two properties: question and answer, that hold the question number (e.g., "q3") and the user's answer (e.g., "3").
+Pass that object to the JSON parser to stringify. That should result in a string like: {"question" : "q3","answer" : "3"}
+Encode that, and store it in a new object
+Write out "checking..." to the appropriate result div while awaiting a response from the server.
+Using Ajax, send the data to the server to be processed by AjaxQuiz.php, which expects a strJSON parameter to be posted.
+The callback function is respond() and expects two parameters: the XMLHttpRequest object and the result div.*/
+	function checkAnswer(e) {
+		var target = getTarget(e);
+		/***Alternate Syntax***
+		var q = target.name;
+		var a = target.value;
+		var objQuestion = new Object();
+		objQuestion["question"] = q;
+		objQuestion["answer"] = a;
+		var resultDiv = document.getElementById(q + "Result");*/
+		var objQuestion={
+			"question": target.name,
+			"answer" :  target.value
+		};//Use the target.name property to grab the correct resultDiv
+		var resultDiv = document.getElementById(target.name + "Result");
+		//new object
+		var strJSON = encodeURIComponent(JSON.stringify(objQuestion));
+		resultDiv.innerHTML="checking...";
+		var xmlhttp = new XMLHttpRequest();
+		xmlhttp.open("post","AjaxQuiz.php",true);
+		
+		xmlhttp.onreadystatechange = function() {
+			respond(xmlhttp,resultDiv);	
+		}
+		
+		xmlhttp.setRequestHeader("Content-Type","application/x-www-form-urlencoded;");
+		xmlhttp.send("strJSON=" + strJSON);
+	}
+	
+	observeEvent(window,"load",init);
+</script>
+<title>Ajax Quiz</title>
+</head>
+
+<body>
+<h1>Ajax Quiz</h1>
+<!--Notice the questions are named "q1", "q2", and "q3" and that each question has an associated result div.-->
+<form onsubmit="return false" id="quizForm">
+<div class="WholeQuestion">
+	<label class="Question" for="q1">What is 1 + 1?</label>
+	<div class="Answer">
+		<input type="radio" name="q1" value="1"> 1
+		<input type="radio" name="q1" value="2"> 2
+		<input type="radio" name="q1" value="3"> 3
+	</div>
+	<div class="Result" id="q1Result"></div>
+</div>
+<div class="WholeQuestion">
+	<label class="Question" for="q2">What is 1 + 2?</label>
+	<div class="Answer">
+		<input type="radio" name="q2" value="1"> 1
+		<input type="radio" name="q2" value="2"> 2
+		<input type="radio" name="q2" value="3"> 3
+	</div>
+	<div class="Result" id="q2Result"></div>
+</div>
+<div class="WholeQuestion">
+	<label class="Question" for="q3">What is 2 - 1?</label>
+	<div class="Answer">
+		<input type="radio" name="q3" value="1"> 1
+		<input type="radio" name="q3" value="2"> 2
+		<input type="radio" name="q3" value="3"> 3
+	</div>
+	<div class="Result" id="q3Result"></div>
+</div>
+</form>
+</body>
+</html>

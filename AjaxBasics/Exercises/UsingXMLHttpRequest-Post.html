@@ -1,0 +1,37 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>XMLHttpRequest Request Using POST Method</title>
+<script type="text/javascript" src="../../lib.js"></script>
+<script type="text/javascript">
+function start() {
+	var xmlhttp = new XMLHttpRequest();
+	var contentDiv = document.getElementById("Content");
+
+	xmlhttp.open("POST", "Demo.php", true);
+	xmlhttp.onreadystatechange=function() {
+		if (xmlhttp.readyState==4 && xmlhttp.status==200) {
+			contentDiv.innerHTML=xmlhttp.responseText;
+			//Challenge solution
+			var headers = xmlhttp.getAllResponseHeaders();
+            contentDiv.innerHTML+=headers.replace(/\n/g,"<br>");
+			//
+		}
+	}
+	 xmlhttp.setRequestHeader("Content-Type","application/x-www-form-urlencoded;");
+			
+	xmlhttp.send("FirstName=Nat&LastName=Dunn");
+}
+
+observeEvent(window,"load",function() {
+	var btn=document.getElementById("btnStart");
+	observeEvent(btn,"click",start);
+});
+</script>
+</head>
+<body>
+	<button id="btnStart">Start</button>
+	<div id="Content"></div>
+</body>
+</html>

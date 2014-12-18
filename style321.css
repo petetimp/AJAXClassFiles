@@ -1,0 +1,32 @@
+			.container{
+				width:600px;
+				margin:auto;
+				box-shadow:0 0 20px rgba(0,0,0,.1);
+				box-sizing:border-box;
+				padding:3em;
+				position:relative;
+			}
+        
+			#aInfo{
+				background:#e3e3e3;
+				padding:3em;
+				position:absolute;
+				width:450px;
+				top:150px;
+				left:250px;
+			}
+			
+			ul{
+				list-style-type:none;
+				margin-top: 2em;
+				padding:0;	
+			}
+			
+			.close{
+				text-align:right;
+				position:absolute;	
+				right:10px;
+				top:10px;
+				font-weight:bold;
+				cursor:pointer;
+			}

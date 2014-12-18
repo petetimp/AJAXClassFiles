@@ -1,0 +1,52 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>XMLHttpRequest</title>
+<!--Another important object that we use a lot in 
+JavaScript these days is the XMLHttpRequest object. This
+ is the object that powers the Ajax functionality in a 
+lot of web pages.
+
+This object is also not part of JavaScript. It can be 
+used from JavaScript but it isn't part of the 
+language.
+
+As an aside, see XMLHttpRequest readyState bug in Opera 
+for an explanation of why we use this.readyState > 2 && 
+typeof headers == "undefined" instead of just 
+this.readyState == 2.-->
+
+The XMLHttpRequest object allows our scripts to initiate a request to a URL and collect the server response without the need to reload the entire page.
+<script type="text/javascript">
+window.onload = function() {
+	var xmlhttp = new XMLHttpRequest();
+	xmlhttp.open("GET", "arrays.html", true);
+	xmlhttp.onreadystatechange = function() {
+		var headers;
+		var output = document.getElementById("headers");
+		var response = document.getElementById("response");
+		var temp = "";
+		if ( this.readyState > 2 && typeof headers == "undefined" ) {
+			headers = this.getAllResponseHeaders().split("\n");
+			temp = "<ol>";
+			for (var i in headers) {
+				if (headers[i].trim().length > 0) {
+					temp += "<li>" + headers[i] + "</li>";
+				}
+			}
+			temp += "</ol>";
+			
+			output.innerHTML=temp;
+			response.value=this.responseText;
+		}
+	}
+	xmlhttp.send();
+}
+</script>
+</head>
+<body>
+<output id="headers"></output>
+<textarea id="response" cols="50" rows="20"></textarea>
+</body>
+</html>

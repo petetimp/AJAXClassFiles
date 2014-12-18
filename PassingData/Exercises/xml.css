@@ -1,0 +1,15 @@
+.textnode {
+	color:green;
+}
+
+.nontextnode {
+	color:blue;
+}
+
+.attribute {
+	color:red;
+}
+
+#output {
+	font-size:large;	
+}

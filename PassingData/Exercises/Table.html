@@ -1,0 +1,132 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Dynamic Table</title>
+<link rel="stylesheet" type="text/css" href="Table.css">
+<script type="text/javascript" src="../../lib.js"></script>
+<script type="text/javascript">
+/*	var tableDataOptions = {
+    "employees": {
+        "tableDataSrc": "Employees.php",
+        "rowElement": "Employee",
+        "columnNames": ["Salesperson","Title","Birth Date","Hire Date","Extension"],
+        "columnWidths": [24,24,21,21,8]
+    },
+    "orders": {
+        "tableDataSrc": "Orders.php",
+        "rowElement": "Order",
+        "columnNames": ["Salesperson","Customer","Order ID","Order Date"],
+        "columnWidths": [29,34,14,23]
+    },
+    "active": ""
+};*/
+	var tableDataOptions = {};
+  //var tableDataOptions = new Object();
+		tableDataOptions.employees= {};
+	  //tableDataOptions.employees=new Object();
+			tableDataOptions.employees.tableDataSrc="Employees.php";	
+			tableDataOptions.employees.rowElement="Employee";
+	tableDataOptions.employees.columnNames=["Salesperson","Title","Birth Date","Hire Date","Extension"];
+			tableDataOptions.employees.columnWidths=[24,24,21,21,8];
+		tableDataOptions.orders={};
+	  //tableDataOptions.orders=new Object();
+			tableDataOptions.orders.tableDataSrc="Orders.php";
+			tableDataOptions.orders.rowElement="Order";						tableDataOptions.orders.columnNames=["Salesperson","Customer","Order ID","Order Date"];
+			tableDataOptions.orders.columnWidths=[29,34,14,23];
+		tableDataOptions.active="";
+
+function buildTable(table) {
+		tableDataOptions["active"] = table.toLowerCase();
+		removeAllChildren(document.getElementById("HeaderRow"));
+		removeAllChildren(document.getElementById("BodyRows"));
+		createHeaderRow();
+		getRows();
+	}
+	
+	function getRows() {
+		var tableName = tableDataOptions["active"];
+		var tableDataSrc = tableDataOptions[tableName].tableDataSrc;
+		var xmlhttp = new XMLHttpRequest();
+		var loadingDiv=document.getElementById("loadingDiv");
+		loadingDiv.innerHTML="Loading...";
+		xmlhttp.open("get", tableDataSrc, true);
+		xmlhttp.onreadystatechange = function() {
+			if (this.readyState == 4 && this.status == 200) {
+				showResult(this);
+			}
+		};
+		xmlhttp.send(null);
+	}
+	
+	function showResult(xmlhttp) {
+		var xmlDoc = xmlhttp.responseXML.documentElement;
+		var tableName = tableDataOptions["active"];
+		var rowElement = tableDataOptions[tableName].rowElement;
+		var outputResult, rowData;
+		
+		removeWhitespace(xmlDoc,true);
+		outputResult = document.getElementById("BodyRows");
+		rowData = xmlDoc.getElementsByTagName(rowElement);
+		
+		addTableRowsFromXmlDoc(rowData,outputResult);
+	}
+	
+	function createHeaderRow() {
+		var headerRow = document.getElementById("HeaderRow");
+		var tableName = tableDataOptions["active"];
+		var colNames = tableDataOptions[tableName].columnNames;
+		var colWidths = tableDataOptions[tableName].columnWidths;
+		
+		for (var i=0; i<colNames.length; i++) {
+			var width=colWidths[i];
+			var atts = new Object();
+			atts["style"] = "width:" + width + "%;";
+			addChild(document, headerRow, "th", colNames[i], atts);
+		}
+	}
+	
+	function addTableRowsFromXmlDoc(xmlNodes,tableNode) {
+		var theTable = tableNode.parentNode;
+		var newRow, newCell, i;
+		
+		for (i=0; i<xmlNodes.length; i++) {
+			newRow = tableNode.insertRow(i);
+			
+			newRow.className = (i%2) ? "OddRow" : "EvenRow";
+			
+			for (j=0; j<xmlNodes[i].childNodes.length; j++) {
+				newCell = newRow.insertCell(newRow.cells.length);
+				newCell.innerHTML = decodeURIComponent(xmlNodes[i].childNodes[j].firstChild.nodeValue);
+			}
+		}
+		theTable.appendChild(tableNode);
+		var loadingDiv=document.getElementById("loadingDiv");
+		loadingDiv.innerHTML="";
+	}
+	
+	observeEvent(window,"load",function() {
+		var btnEmployees = document.getElementById("btnEmployees");
+		var btnOrders = document.getElementById("btnOrders");
+		observeEvent(btnEmployees,"click",function() {
+			buildTable("Employees");
+		});
+		observeEvent(btnOrders,"click",function() {
+			buildTable("Orders");
+		});
+	});
+</script>
+</head>
+<body>
+
+<div id="loadingDiv"></div>
+<button id="btnEmployees">Show Employees</button>
+<button id="btnOrders">Show Orders</button>
+<table cellpadding="2" cellspacing="0" id="MainTable">
+	<thead>
+		<tr id="HeaderRow"></tr>
+	</thead>
+	<tbody id="BodyRows"></tbody>
+</table>
+</body>
+</html>

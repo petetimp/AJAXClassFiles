@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<beatles>
+	<beatle link="http://www.paulmccartney.com">
+		<name>
+			<firstname>Paul</firstname>
+			<lastname>McCartney</lastname>
+		</name>
+	</beatle>
+	<beatle link="http://www.johnlennon.com">
+		<name>
+			<firstname>John</firstname>
+			<lastname>Lennon</lastname>
+		</name>
+	</beatle>
+	<beatle link="http://www.georgeharrison.com">
+		<name>
+			<firstname>George</firstname>
+			<lastname>Harrison</lastname>
+		</name>
+	</beatle>
+	<beatle link="http://www.ringostarr.com">
+		<name>
+			<firstname>Ringo</firstname>
+			<lastname>Starr</lastname>
+		</name>
+	</beatle>
+</beatles>

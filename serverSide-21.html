@@ -1,0 +1,43 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>jQueryDemo21</title>
+    </head>
+    <body>
+    	<h1>Something to Save</h1>
+        <form action='#'>
+        	<textarea name="content" id="content" cols="30" rows="10"></textarea>
+        	<p><button type='submit'>Save</button></p>
+        </form>
+    	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+        <script>
+		
+			$.post('load.php',
+				function(phpData){
+				console.log(phpData);
+				$('#content').val(phpData);
+				}
+			);
+		
+			//listen for click
+			$('form').on('submit',
+				function(event){
+					//console.log($(this).find('#content').val());
+					$.post('save.php',$(this).serialize(),
+						function(phpData){
+							alert(phpData);
+						}
+					);
+					//disable default action
+					event.preventDefault();
+				}
+			);
+        </script>
+        <!--
+        	The jQuery serialize() method creates a URL encoded text string by serializing form values.
+			You can select one or more form elements (like input and/or text area), or the form element itself.
+			The serialized values can be used in the URL query string when making an AJAX request.
+        -->
+    </body>
+</html>

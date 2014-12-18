@@ -1,0 +1,215 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Table Rows</title>
+<link href="TableRows.css" type="text/css" rel="stylesheet">
+<script type="text/javascript" src="../../lib.js"></script>
+<script type="text/javascript">
+var tableConfig = {//table configuration object
+	rowsToShow : 2,
+	totalRows : 10 //this would normally be retrieved from the server
+}
+
+function prevRows() {
+	var curRow=Number(document.getElementById("CurRowStart").innerHTML);
+	getRows(curRow-tableConfig.rowsToShow,"prev");//if curRow==3 getRows(1,"prev)
+}
+
+function nextRows() {
+	var curRow=Number(document.getElementById("CurRowStart").innerHTML);
+	getRows(curRow+tableConfig.rowsToShow,"next");//if curRow== 3 getRows(5,"next")
+}
+
+function getRows(curRow,rowSource) {
+	//grab the html elements and assign them to js vars
+	//var slideImage = document.getElementById("CurSlideImage");Does Not Exist in HTML
+	var curRowStart = document.getElementById("CurRowStart");//<span id="CurRowStart">
+	var curRowEnd = document.getElementById("CurRowEnd");//<span id="CurRowEnd">
+	var btnPrev = document.getElementById("PrevButton");//<button id="PrevButton">
+	var btnNext = document.getElementById("NextButton");//<button id="NextButton">
+	var prevTbody = document.getElementById("PrevRows");//<tbody id="PrevRows">
+	var nextTbody = document.getElementById("NextRows");//<tbody id="NextRows"> 
+	var curTbody = document.getElementById("CurRows");//<tbody id="CurRows">
+	 
+	var rowsToShow = tableConfig.rowsToShow;//var rowsToShow=2
+	var totalRows = tableConfig.totalRows; //var totalRows=10
+	var xmlhttp;
+	//disable the next and previous buttons while the function is running
+	btnPrev.disabled=true;
+	btnNext.disabled=true;
+	
+	if (rowSource == "prev") {//if the previous button was clicked
+		for (var i=curTbody.rows.length-1; i>=0; i--) {//var i=1
+			//replace the two active rows with the two previous rows and...
+			curTbody.replaceChild(prevTbody.rows[i],curTbody.rows[i]);
+			deleteRow("NextRows",i);//delete the two next rows	
+		}
+		curRowStart.innerHTML=curRow;//curRow=1 if going from "Rows 3-4" to "Rows 1-2"
+		curRowEnd.innerHTML=curRow+rowsToShow-1;//innerHTML will be 2 if curRow=1
+		message("Loading from Prev");//send string to message function
+	} else if (rowSource == "next") {//if the next button was clicked
+		for (var i=curTbody.rows.length-1; i>=0; i--) {
+			//replace the two active rows with the next two rows and...
+			curTbody.replaceChild(nextTbody.rows[i],curTbody.rows[i]);	
+			deleteRow("PrevRows",i);//delete the two previous rows	
+		}
+		curRowStart.innerHTML=curRow;//curRow=5 if going from "Rows 3-4" to "Rows 5-6"
+		curRowEnd.innerHTML=curRow+rowsToShow-1;//innerHTML will be 6 if curRow=5
+		message("Loading from Next");
+	}
+			 //for the first row curRow=1 and rowsToShow will always equal 2
+	url = "TableRows.php?Row=" + curRow + "&RowsToShow=" + rowsToShow;
+	/*Task: Create and send the xmlhttprequest.*/
+	xmlhttp = new XMLHttpRequest();
+	xmlhttp.open("get",url,true);
+	xmlhttp.onreadystatechange = function() {
+		/*if the http request is ready and the status successful, call
+			changeRows with the xmlhttprequest object as a parameter*/
+		if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+			changeRows(xmlhttp);	
+		}
+	}
+	xmlhttp.send(null);
+	function changeRows(xmlhttp) {
+		//grab the xml document element from the server response and assign it to var docElem
+		var docElem = xmlhttp.responseXML.documentElement;
+		var lastSetStart = totalRows - rowsToShow + 1;//var lastSetStart=9
+		//if curRow==1 prevRowPos=null ELSE prevRowPos = 0
+		var prevRowPos = (curRow == 1) ? null : 0;
+		//if curRow==1 curRowPos = 0 ELSE curRowPos=rowsToShow (2)
+		var curRowPos = (curRow == 1) ? 0 : rowsToShow;
+		/* if (curRow==1) nextRowPos = rowsToShow(2) ELSE if curRow >= lastSetStart nextRowPos
+		= null ELSE nextRowPos=2*rowsToShow (equal to 4) */
+		var nextRowPos = (curRow == 1) ? rowsToShow :
+			(curRow >= lastSetStart) ? null : 2 * rowsToShow;
+		
+		removeWhitespace(docElem,true);
+		/*
+			Task: Write the code to load the rows
+			You will need three conditions to:
+			 *load prev rows if appropriate
+			 *load next rows if appropriate
+			 *load current rows if appropriate
+			 *manage the enabling/disabling of the buttons
+		*/
+		//if curRow != 1
+		if (prevRowPos !== null) {
+			loadRows("Prev",prevRowPos,docElem);
+			btnPrev.disabled=false;//enable the previous button
+		}
+		//if curRow isn't greater than or equal to 9
+		if (nextRowPos !== null) {
+			loadRows("Next",nextRowPos,docElem);
+			btnNext.disabled=false;//enable the next button
+		}
+		//if curRow == 1
+		if (rowSource == "ajax") {
+			loadRows("Cur",curRowPos,docElem);
+			message("Loading from Ajax");//send text to message function
+		}
+
+		curRowStart.innerHTML=curRow;//if curRowStart.innerHTML == 3
+		curRowEnd.innerHTML=curRow+rowsToShow-1;//curRowEnd.innerHTML = 4
+		
+	}
+}
+/*xmlresponsetext when the page loads
+<Presidents>
+	<President>
+		<Name>George Washington</Name>
+		<Years>1789 - 1797</Years>
+		<Image>georgewashington.jpg</Image>
+	</President>
+	<President>
+		<Name>John Adams</Name>
+		<Years>1797 - 1801</Years>
+		<Image>johnadams.jpg</Image>
+	</President>
+	<President>
+		<Name>Thomas Jefferson</Name>
+		<Years>1801 - 1809</Years>
+		<Image>thomasjefferson.jpg</Image>
+	</President>
+	<President>
+		<Name>James Madison</Name>
+		<Years>1809 - 1817</Years>
+		<Image>jamesmadison.jpg</Image>
+	</President>
+</Presidents>*/
+	   //loadRows("Cur",curRowPos,docElem);
+function loadRows(rowset,startRow,docElem) {	 //when page loads..
+	var endRow=startRow+tableConfig.rowsToShow-1;//if startRow is 0, var endRow=1
+												 //if startRow is 2, var endRow=3
+	var tbodyId = rowset + "Rows";//<tbody id= "CurRows"> as an example
+	var cells = [], row, cellText;
+	//var rowLength= <Presidents>.<President>.<Name><Years><Image>.length=3
+	var rowLength = docElem.firstChild.childNodes.length;
+	/*The first for loop represents the table rows while the second loop represents the table
+	data within each row*/
+	for (var i=startRow; i<=endRow; i++) {//when the page loads-var i=0 and endRow=1
+		row = docElem.childNodes[i];//when the page loads-row=<President>.<President>[i]
+		for (var j=0; j<rowLength;j++) {//rowLength=3
+			if (row) {//if the row isn't undefined in the for loop above... 
+				cellNode = row.childNodes[j];//<Name>George Washington</Name>
+				cellText = cellNode.firstChild.nodeValue;//George Washington
+				if (cellNode.nodeName == "Image") {//this is for row.childNodes[2]
+					cellText = "<img src='Images/" + cellText + "'>";
+				}
+			} else {//if the row is undefined set it's cellText to nothing
+				cellText="";	
+			}
+			cells.push(cellText);	
+		}//add the cell text into a cells array and use addRow to add the row to the table
+		addRow(tbodyId,cells);
+		cells = [];//empty the cells array so that more rows with cells can be added
+	}
+}
+
+function message(msg) {
+	var output = document.getElementById("Message");
+	output.innerHTML = msg;
+}
+
+observeEvent(window,"load",function() {
+	//grab the previous and next buttons from the html
+	var btnPrev = document.getElementById("PrevButton");
+	var btnNext = document.getElementById("NextButton");
+	var totalRows = tableConfig.totalRows; //var totalRows=10
+	observeEvent(btnPrev,"click",prevRows);//set up event handlers for the
+	observeEvent(btnNext,"click",nextRows);//previous and next buttons
+	//grab the "TotalRowsNum" span and set its innerHTML to totalRows (10)
+	document.getElementById("TotalRowsNum").innerHTML = totalRows;
+	getRows(1,"ajax");//call getRows passing in the row number and the row src
+});
+</script>
+</head>
+
+<body>
+<h1>First 10 Presidents</h1>
+<table id="Table">
+	<thead>
+		<tr>
+			<th>President</th>
+			<th>Years</th>
+			<th>Image</th>
+		</tr>
+	</thead>
+	<tbody id="PrevRows"></tbody>
+	<tbody id="CurRows"></tbody>
+	<tbody id="NextRows"></tbody>
+	<tfoot>
+		<tr>
+			<td colspan="3">
+				<button id="PrevButton">Previous</button>
+				Rows <span id="CurRowStart">1</span> - <span id="CurRowEnd"></span> of <span id="TotalRowsNum"></span>
+				<button id="NextButton">Next</button>
+			</td>
+		</tr>
+		<tr>
+			<td colspan="3" id="Message"></td>
+		</tr>
+	</tfoot>
+</table>
+</body>
+</html>

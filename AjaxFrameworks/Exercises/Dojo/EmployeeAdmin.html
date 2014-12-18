@@ -1,0 +1,127 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Employee Administration</title>
+<link rel="stylesheet" type="text/css" href="../Styles/Main.css">
+<script type="text/javascript" src="../../../lib.js"></script>
+<script type="text/javascript" src="../../../dojo.js"></script>
+<script type="text/javascript">
+	function getEmployeeList(url) {
+		var output = document.getElementById("EmployeeList");
+		output.innerHTML="<h2>Loading...</h2>";
+		dojo.xhrPost(
+			{
+				url: url,
+				handleAs: "text",
+				load: displayList
+			});
+			
+		function displayList(data) {
+			var output = document.getElementById("EmployeeList");
+			var employees, eid, target, i;
+			output.style.display="block";
+			output.innerHTML=data;
+			
+			if (data.indexOf("Failed") == 0) {
+				output.className="Warning";
+			} else {
+				employees = output.getElementsByTagName("li");
+				for (i=0; i<employees.length; ++i) {
+					observeEvent(employees[i],"click",function(e) {
+						target = getTarget(e);
+						eid = target.id.substring(3);
+						getEmployeeForm("../../EmployeeForm.php",eid);	
+					});
+				}
+			}
+		}
+	}
+	
+	function getEmployeeForm(url,eid) {
+		var output = document.getElementById("FormDiv");
+		output.innerHTML="Loading...";
+		
+		dojo.xhrPost(
+			{
+				url: url,
+				load: displayForm,
+				content: {
+					eid: eid
+				}
+			});
+			
+		function displayForm(data) {
+			var output = document.getElementById("FormDiv");
+			var fields, field, value, i, fname, lname;
+			output.innerHTML=data;
+			output.style.display="block";
+			fields = output.getElementsByTagName("input");
+			
+			if (data.indexOf("Failed") == 0) {
+				output.className="Warning";
+			} else {
+				for (i=0; i<fields.length; ++i) {
+					observeEvent(fields[i],"change",function(e) {
+						target = getTarget(e);
+						field = target.name;
+						value = target.value;
+						fname = target.form.FirstName.value;
+						lname = target.form.LastName.value;
+						updateEmployee("../../EditEmployee.php",field,value,eid,fname,lname);
+					});
+				}
+			}
+		}
+	}
+	
+	function updateEmployee(url,field,value,eid,fname,lname) {
+		/*var xmlhttp = new XMLHttpRequest();
+		xmlhttp.open("POST", url, true);
+		xmlhttp.onreadystatechange=function() {
+			employeeUpdated(eid,fname,lname);	
+		};
+		xmlhttp.setRequestHeader("Content-Type","application/x-www-form-urlencoded;");
+		xmlhttp.send("eid=" + eid + "&field=" + field + "&value=" + value);*/
+			dojo.xhrPost(
+			{
+				url: url,
+				load: employeeUpdated,
+				content: {
+					eid: eid,
+					field: field,
+					value: value
+				}
+			});
+			
+		
+		function employeeUpdated(data) {
+			var employee, msg;
+			if (xmlhttp.readyState==4 && xmlhttp.status==200) {
+				msg = document.getElementById("MessageDiv");
+				if (data.indexOf("Failed") == 0) {
+					msg.className = "Warning";
+					msg.innerHTML=data;
+				} else {
+					msg.innerHTML="Updated!";
+					employee = document.getElementById("emp" + eid);
+					employee.innerHTML = fname + ' ' + lname;
+				}
+				fadeElem(msg,255,255,0,255,255,255);
+			}
+		}
+	}
+
+	observeEvent(window,"load",function() {
+		getEmployeeList("../../EmployeeList.php");
+	});
+</script>
+</head>
+<body>
+	<h1>Employee Administration</h1>
+	<p>Click employee name to modify.</p>
+	<div id="EmployeeList"></div>
+	<div id="FormDiv"></div>
+	<div id="MessageDiv"></div>
+</body>
+</html>

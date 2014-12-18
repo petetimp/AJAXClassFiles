@@ -1,0 +1,156 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Employee Administration</title>
+<link rel="stylesheet" type="text/css" href="Styles/Main.css">
+<script type="text/javascript" src="../../lib.js"></script>
+<script type="text/javascript">
+	function getEmployeeList(url) {
+		var xmlhttp = new XMLHttpRequest();
+		var output = document.getElementById("EmployeeList");
+		output.innerHTML="<h2>Loading...</h2>";
+		/*
+			Using the xmlhttp object created above
+			send an http request using the GET method
+			and the passed-in URL.
+			
+			When the readystate changes call the display()
+			function with the appropriate parameters.
+		*/
+		xmlhttp.open("GET","EmployeeList.php", true);
+		xmlhttp.onreadystatechange=function(){
+			display(output,xmlhttp);	
+		}
+		
+		xmlhttp.send(null);
+	}
+
+	function display(output,xmlhttp) {
+		var employees, eid, target, i;
+		if (xmlhttp.readyState==4 && xmlhttp.status==200) {
+			output.style.display="block";
+			/*
+				Set the innerHTML property of the output div
+				to the response text.
+			*/
+			output.innerHTML=xmlhttp.responseText;
+			if (xmlhttp.responseText.indexOf("Failed") == 0) {
+				output.className="Warning";
+			} else {
+				employees = output.getElementsByTagName("li");
+				for (i=0; i<employees.length; ++i) {
+					observeEvent(employees[i],"click",function(e) {
+						target = getTarget(e);
+						eid = target.id.substring(3);
+						getEmployeeForm("EmployeeForm.php",eid);	
+					});
+				}
+			}
+		}
+	}
+
+	function getEmployeeForm(url,eid) {
+		var xmlhttp = new XMLHttpRequest();
+		var output = document.getElementById("FormDiv");
+		var fields, field, value, i;
+		output.innerHTML="Loading...";
+		xmlhttp.open("POST", url, true);
+		xmlhttp.onreadystatechange = function() {
+			display(output,xmlhttp);
+			fields = output.getElementsByTagName("input");
+			for (i=0; i<fields.length; ++i) {
+				observeEvent(fields[i],"change",function(e) {
+					target = getTarget(e);
+					field = target.name;
+					value = target.value;
+					updateEmployee("EditEmployee.php",field,value,eid);
+				});
+			}
+		}
+		/*
+			Set the appropriate content type for submitting form data
+			and send the request. The server code is expecting a parameter
+			named eid, with the employee id we received.
+		*/
+		xmlhttp.setRequestHeader("Content-Type","application/x-www-form-urlencoded;");
+		xmlhttp.send("eid=" + eid);
+	}
+
+	function updateEmployee(url,field,value,eid) {
+		/*
+			Write the code leading up to the call to send() below.
+			The callback function for the readystatechange 
+			should be: employeeUpdated
+		*/
+		var xmlhttp= new XMLHttpRequest();
+		xmlhttp.open("POST",url,true);
+		xmlhttp.onreadystatechange=function(){
+			employeeUpdated(eid,value);
+		};
+		xmlhttp.setRequestHeader("Content-Type","application/x-www-form-urlencoded;");
+		xmlhttp.send("eid=" + eid + "&field=" + field + "&value=" + value);
+		
+		function employeeUpdated(eid,value) {
+			var msg;
+			if (xmlhttp.readyState==4 && xmlhttp.status==200) {
+				msg = document.getElementById("MessageDiv");
+				if (xmlhttp.responseText.indexOf("Failed") == 0) {
+					msg.className = "Warning";
+					msg.innerHTML=xmlhttp.responseText;
+				} else {
+					msg.innerHTML="Updated!";
+/*Challenge
+
+In the employeeUpdated() callback function, we currently call 
+getEmployeeList() to update the list of employees. This updates the 
+entire list after each change. It would be better to just update the 
+record that was changed. There is no need to make a call to the 
+database to find out which record it was or how it was changed. The 
+client already has that information. See if you can figure out how to
+ remove this unnecessary Ajax call and use pure client-side 
+ JavaScript to update the list. Be careful not to update the list 
+ until you are sure that the record has been successfully updated in 
+ the database. The only file you will need to change is 
+ EmployeeAdmin.html.*/
+					//getEmployeeList('EmployeeList.php');
+					var output = document.getElementById("EmployeeList");
+					var employees = output.getElementsByTagName("li");
+					
+					for (var i=0; i<employees.length; ++i) {
+						var substringInt=employees[i].id.substring(3);
+						if(substringInt== eid){
+							var table=document.getElementsByTagName("table")[0];
+							var tableBody=table.tBodies[0];
+							var inputs=tableBody.getElementsByTagName("input");
+							var length=inputs.length;
+							for (var j=0; j<length; ++j){
+								if(inputs[j].name=="FirstName"){
+									var firstName=inputs[j].value;
+								}
+								if(inputs[j].name=="LastName"){
+									var lastName=inputs[j].value;
+								}	
+							}
+							employees[i].innerHTML= firstName + " " + lastName;
+						}
+					}
+				}
+				fadeElem(msg,255,255,0,255,255,255);
+			}
+		}
+	}
+	
+	observeEvent(window,"load",function() {
+		getEmployeeList("EmployeeList.php");
+	});
+</script>
+</head>
+<body>
+	<h1>Employee Administration</h1>
+	<p>Click employee name to modify.</p>
+	<div id="EmployeeList"></div>
+	<div id="FormDiv"></div>
+	<div id="MessageDiv"></div>
+</body>
+</html>

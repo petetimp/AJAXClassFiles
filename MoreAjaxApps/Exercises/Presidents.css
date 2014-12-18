@@ -1,0 +1,14 @@
+td {
+	cursor:pointer;
+	border:1px solid #000000;
+}
+
+td.Saved {
+	color:#00cc00;
+	border-color:#00cc00;
+}
+
+td.Normal {
+	color:#000000;
+	border-color:#000000;
+}
